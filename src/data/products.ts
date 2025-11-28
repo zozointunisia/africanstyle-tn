@@ -1,0 +1,141 @@
+export const products = [
+  {
+    id: 1,
+    name: "Elegance Abidjan Dress",
+    price: 129.99,
+    category: "Dresses",
+    images: [
+      "https://images.unsplash.com/photo-1687137113677-f2a9a6c79fab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBZnJpY2FuJTIwZmFzaGlvbiUyMG1vZGVsfGVufDF8fHx8MTc2Mzc0MjY4OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "https://images.unsplash.com/photo-1605302596032-15e67c3cf66a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBZnJpY2FuJTIwdHJhZGl0aW9uYWwlMjBkcmVzc3xlbnwxfHx8fDE3NjM3NDI2ODl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "https://images.unsplash.com/photo-1566819089778-333539a94029?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBZnJpY2FuJTIwcGFnbmUlMjBmYWJyaWN8ZW58MXx8fHwxNzYzNzQyNjkwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+    ],
+    description: "A stunning maxi dress crafted from authentic Ivorian pagne fabric, featuring vibrant traditional patterns and modern tailoring.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    isNew: true,
+    isBestSeller: true,
+    fabric: "100% authentic Ivorian pagne cotton",
+    origin: "Handcrafted in Côte d'Ivoire",
+    culturalInspiration: "Inspired by the rich textile traditions of the Baoulé people, this dress celebrates the artistry of Ivorian fabric dyeing and weaving techniques passed down through generations."
+  },
+  {
+    id: 2,
+    name: "Traditional Ankara Shirt",
+    price: 79.99,
+    category: "Shirts",
+    images: [
+      "https://images.unsplash.com/photo-1758633854855-3059c5b48674?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBZnJpY2FuJTIwdGV4dGlsZSUyMHBhdHRlcm58ZW58MXx8fHwxNzYzNjk2MTAxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "https://images.unsplash.com/photo-1687137113677-f2a9a6c79fab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBZnJpY2FuJTIwZmFzaGlvbiUyMG1vZGVsfGVufDF8fHx8MTc2Mzc0MjY4OXww&ixlib=rb-4.1.0&q=80&w=1080",
+    ],
+    description: "A versatile shirt that blends traditional pagne patterns with contemporary styling for the modern African wardrobe.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    isNew: false,
+    isBestSeller: true,
+    fabric: "Premium pagne cotton blend",
+    origin: "Designed and crafted in Tunisia with Ivorian fabric",
+    culturalInspiration: "This piece reflects the Pan-African spirit, combining Ankara patterns with tailored cuts that honor both tradition and innovation."
+  },
+  {
+    id: 3,
+    name: "Kente Heritage Set",
+    price: 189.99,
+    category: "Sets",
+    images: [
+      "https://images.unsplash.com/photo-1605302596032-15e67c3cf66a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBZnJpY2FuJTIwdHJhZGl0aW9uYWwlMjBkcmVzc3xlbnwxfHx8fDE3NjM3NDI2ODl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "https://images.unsplash.com/photo-1566819089778-333539a94029?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBZnJpY2FuJTIwcGFnbmUlMjBmYWJyaWN8ZW58MXx8fHwxNzYzNzQyNjkwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "https://images.unsplash.com/photo-1687137113677-f2a9a6c79fab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBZnJpY2FuJTIwZmFzaGlvbiUyMG1vZGVsfGVufDF8fHx8MTc2Mzc0MjY4OXww&ixlib=rb-4.1.0&q=80&w=1080",
+    ],
+    description: "A luxurious two-piece set featuring intricate pagne patterns, perfect for special occasions and cultural celebrations.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    isNew: true,
+    isBestSeller: false,
+    fabric: "Luxury woven pagne silk-cotton blend",
+    origin: "Artisanal creation from Côte d'Ivoire",
+    culturalInspiration: "Drawing from ceremonial attire traditions, this ensemble celebrates the regal heritage of West African royal courts."
+  },
+  {
+    id: 4,
+    name: "Sunset Wrap Dress",
+    price: 99.99,
+    category: "Dresses",
+    images: [
+      "https://images.unsplash.com/photo-1553775927-a071d5a6a39a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBZnJpY2FuJTIwd29tYW4lMjBwb3J0cmFpdHxlbnwxfHx8fDE3NjM3NDI2OTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "https://images.unsplash.com/photo-1687137113677-f2a9a6c79fab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBZnJpY2FuJTIwZmFzaGlvbiUyMG1vZGVsfGVufDF8fHx8MTc2Mzc0MjY4OXww&ixlib=rb-4.1.0&q=80&w=1080",
+    ],
+    description: "A flattering wrap dress in warm sunset tones, showcasing the vibrant colors of authentic Ivorian pagne.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    isNew: false,
+    isBestSeller: true,
+    fabric: "100% cotton pagne fabric",
+    origin: "Handmade with Ivorian textiles",
+    culturalInspiration: "Inspired by the golden hour over the Ébrié Lagoon in Abidjan, this dress captures the warmth and beauty of the Ivorian landscape."
+  },
+  {
+    id: 5,
+    name: "Dashiki Classic Tunic",
+    price: 69.99,
+    category: "Shirts",
+    images: [
+      "https://images.unsplash.com/photo-1758633854855-3059c5b48674?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBZnJpY2FuJTIwdGV4dGlsZSUyMHBhdHRlcm58ZW58MXx8fHwxNzYzNjk2MTAxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "https://images.unsplash.com/photo-1605302596032-15e67c3cf66a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBZnJpY2FuJTIwdHJhZGl0aW9uYWwlMjBkcmVzc3xlbnwxfHx8fDE3NjM3NDI2ODl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+    ],
+    description: "A comfortable and stylish tunic with traditional dashiki embroidery on premium pagne fabric.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    isNew: false,
+    isBestSeller: false,
+    fabric: "Breathable pagne cotton",
+    origin: "Crafted in Tunisia",
+    culturalInspiration: "The dashiki style represents unity and African pride, with each embroidered detail telling a story of cultural heritage."
+  },
+  {
+    id: 6,
+    name: "Boubou Royal Ensemble",
+    price: 249.99,
+    category: "Sets",
+    images: [
+      "https://images.unsplash.com/photo-1687137113677-f2a9a6c79fab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBZnJpY2FuJTIwZmFzaGlvbiUyMG1vZGVsfGVufDF8fHx8MTc2Mzc0MjY4OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "https://images.unsplash.com/photo-1566819089778-333539a94029?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBZnJpY2FuJTIwcGFnbmUlMjBmYWJyaWN8ZW58MXx8fHwxNzYzNzQyNjkwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "https://images.unsplash.com/photo-1605302596032-15e67c3cf66a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBZnJpY2FuJTIwdHJhZGl0aW9uYWwlMjBkcmVzc3xlbnwxfHx8fDE3NjM3NDI2ODl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+    ],
+    description: "An elegant three-piece boubou ensemble crafted from the finest Ivorian pagne, perfect for weddings and formal events.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    isNew: true,
+    isBestSeller: false,
+    fabric: "Premium luxury pagne silk blend",
+    origin: "Master artisan creation from Côte d'Ivoire",
+    culturalInspiration: "The boubou represents dignity and grace in West African culture, traditionally worn by nobles and dignitaries during important ceremonies."
+  },
+  {
+    id: 7,
+    name: "Tribal Pattern Headwrap",
+    price: 29.99,
+    category: "Accessories",
+    images: [
+      "https://images.unsplash.com/photo-1566819089778-333539a94029?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBZnJpY2FuJTIwcGFnbmUlMjBmYWJyaWN8ZW58MXx8fHwxNzYzNzQyNjkwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "https://images.unsplash.com/photo-1758633854855-3059c5b48674?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBZnJpY2FuJTIwdGV4dGlsZSUyMHBhdHRlcm58ZW58MXx8fHwxNzYzNjk2MTAxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+    ],
+    description: "A versatile headwrap made from authentic pagne fabric, adding a touch of African elegance to any outfit.",
+    sizes: ["One Size"],
+    isNew: false,
+    isBestSeller: true,
+    fabric: "100% cotton pagne",
+    origin: "Ivorian fabric",
+    culturalInspiration: "Headwraps have deep significance in African culture, symbolizing spirituality, status, and beauty across generations."
+  },
+  {
+    id: 8,
+    name: "Midi Pagne Skirt",
+    price: 89.99,
+    category: "Dresses",
+    images: [
+      "https://images.unsplash.com/photo-1553775927-a071d5a6a39a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBZnJpY2FuJTIwd29tYW4lMjBwb3J0cmFpdHxlbnwxfHx8fDE3NjM3NDI2OTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "https://images.unsplash.com/photo-1605302596032-15e67c3cf66a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBZnJpY2FuJTIwdHJhZGl0aW9uYWwlMjBkcmVzc3xlbnwxfHx8fDE3NjM3NDI2ODl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+    ],
+    description: "A flowing midi skirt in vibrant pagne print, designed to bring African flair to your everyday style.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    isNew: true,
+    isBestSeller: false,
+    fabric: "Soft cotton pagne",
+    origin: "Handcrafted with Ivorian textiles",
+    culturalInspiration: "This skirt celebrates the everyday elegance of West African women, combining traditional prints with modern silhouettes."
+  }
+];
