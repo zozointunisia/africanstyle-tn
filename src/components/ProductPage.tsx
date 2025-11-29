@@ -74,20 +74,20 @@ export function ProductPage({ productId, addToCart }: ProductPageProps) {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 lg:grid-cols-2 gap-10">
         {/* ✅ Colonne image (si disponible) */}
         <div>
-          {mainImage ? (
-            <div className="w-full aspect-[3/4] bg-gray-100 rounded-xl overflow-hidden mb-6">
-              <ImageWithFallback
-                src={mainImage}
-                alt={product.name}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          ) : (
-            <div className="w-full aspect-[3/4] bg-gray-100 rounded-xl mb-6 flex items-center justify-center text-gray-400 text-sm">
-              No image available yet
-            </div>
-          )}
-        </div>
+  {mainImage ? (
+    <div className="w-full aspect-[3/4] bg-gray-100 rounded-xl overflow-hidden mb-6 max-h-[600px]">
+      <ImageWithFallback
+        src={mainImage}
+        alt={product.name}
+        className="w-full h-full object-contain block"
+      />
+    </div>
+  ) : (
+    <div className="w-full aspect-[3/4] bg-gray-100 rounded-xl mb-6 flex items-center justify-center text-gray-400 text-sm">
+      No image available yet
+    </div>
+  )}
+</div>
 
         {/* ✅ Colonne infos */}
         <motion.div
