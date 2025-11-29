@@ -17,7 +17,7 @@ export function CartPage({
   removeFromCart,
   navigateToProduct,
 }: CartPageProps) {
-
+  // ✅ On utilise directement "cart" qu'on reçoit de App.tsx
   const subtotal = cart.reduce(
     (total, item) =>
       item.product ? total + item.product.price * item.quantity : total,
@@ -26,6 +26,7 @@ export function CartPage({
   const shippingFee = subtotal >= 150 ? 0 : 10;
   const total = subtotal + shippingFee;
 
+  // ✅ Si le panier est vide
   if (cart.length === 0) {
     return (
       <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center">
@@ -49,6 +50,7 @@ export function CartPage({
     );
   }
 
+  // ✅ Si le panier a des éléments
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -60,7 +62,7 @@ export function CartPage({
           <h1 className="mb-8 text-[#2C2C2C]">Shopping Cart</h1>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Items */}
+            {/* Cart Items */}
             <div className="lg:col-span-2 space-y-4">
               {cart.map((item) =>
                 item.product ? (
@@ -144,7 +146,7 @@ export function CartPage({
               )}
             </div>
 
-            {/* Résumé */}
+            {/* Order Summary */}
             <div className="lg:col-span-1">
               <div className="bg-white p-6 rounded-xl shadow-sm sticky top-24">
                 <h3 className="mb-6 text-[#2C2C2C]">Order Summary</h3>
