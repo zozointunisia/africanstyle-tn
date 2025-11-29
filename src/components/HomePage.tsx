@@ -28,7 +28,7 @@ type Product = {
 export function HomePage({ navigateTo, navigateToProduct }: HomePageProps) {
   const [products, setProducts] = React.useState<Product[]>([]);
   React.useEffect(() => {
-    fetch('http://localhost:4000/api/products')
+    fetch('https://africanstyle-tn-1.onrender.com/api/products')
       .then(res => res.json())
       .then(data => setProducts(data));
   }, []);
