@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
-import { Minus, Plus, Trash2, ShoppingBag, Package, MapPin } from 'lucide-react';
-import { CartItem, Product } from '../App';
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import React, { useEffect, useState } from "react";
+import { motion } from "motion/react";
+import { Minus, Plus, Trash2, ShoppingBag, Package, MapPin } from "lucide-react";
+import { CartItem, Product } from "../App";
+import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 type CartPageProps = {
-  cart: CartItem[]; // (tu peux même le supprimer plus tard si tu veux tout backend)
+  cart: CartItem[];
   updateCartItemQuantity: (productId: string, size: string, quantity: number) => void;
   removeFromCart: (productId: string, size: string) => void;
   navigateToProduct: (productId: string) => void;
 };
+
+type CartItemWithProduct = CartItem & { product?: Product };
 
 export function CartPage({
   cart,
@@ -17,48 +19,44 @@ export function CartPage({
   removeFromCart,
   navigateToProduct,
 }: CartPageProps) {
-  const [orderStep, setOrderStep] = useState<'cart' | 'checkout' | 'confirmation'>('cart');
-  const [orderNumber, setOrderNumber] = useState('');
+  const [orderStep, setOrderStep] = useState<"cart" | "checkout" | "confirmation">("cart");
+  const [orderNumber, setOrderNumber] = useState("");
+  const [products, setProducts] = useState<Product[]>([]);
+
   const [orderData, setOrderData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
-    postalCode: '',
-    deliveryMethod: 'home',
-    notes: '',
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    postalCode: "",
+    deliveryMethod: "home",
+    notes: "",
   });
 
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-
-  // Charger cart + produits depuis l'API, puis fusionner
+  // 🔹 On récupère la liste des produits depuis l’API
   useEffect(() => {
-    Promise.all([
-      fetch('https://africanstyle-tn-2.onrender.com/api/cart').then(res => res.json()),
-      fetch('https://africanstyle-tn-2.onrender.com/api/products').then(res => res.json()),
-    ])
-      .then(([cartData, products]: [any[], Product[]]) => {
-        const merged = cartData
-          .map((item: any) => {
-            const product = products.find((p) => p._id === item.productId);
-            if (!product) return null;
-            return {
-              ...item,
-              product,
-            } as CartItem;
-          })
-          .filter(Boolean) as CartItem[];
-        setCartItems(merged);
-      })
-      .catch((err) => {
-        console.error('Error loading cart:', err);
-      });
+    fetch("https://africanstyle-tn-2.onrender.com/api/products")
+      .then((res) => res.json())
+      .then((data: Product[]) => setProducts(data))
+      .catch((err) => console.error("Error fetching products for cart:", err));
   }, []);
 
+  // 🔹 On fusionne le panier (cart) avec les infos produits
+  const cartItems: CartItemWithProduct[] = cart.map((item) => {
+    const product =
+      products.find(
+        (p) =>
+          (p._id && p._id === item.productId) ||
+          (p.id && String(p.id) === String(item.productId))
+      ) || undefined;
+    return { ...item, product };
+  });
+
   const subtotal = cartItems.reduce(
-    (total, item) => total + item.product.price * item.quantity,
+    (total, item) =>
+      item.product ? total + item.product.price * item.quantity : total,
     0
   );
 
@@ -76,12 +74,10 @@ export function CartPage({
 
   const handleCheckout = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Générer un numéro de commande local
+
     const orderId = `AS${Date.now().toString().slice(-8)}`;
     setOrderNumber(orderId);
 
-    // Payload pour backend
     const orderPayload = {
       customer: {
         name: `${orderData.firstName} ${orderData.lastName}`,
@@ -93,40 +89,41 @@ export function CartPage({
         deliveryMethod: orderData.deliveryMethod,
         notes: orderData.notes,
       },
-      items: cartItems.map(item => ({
-        productId: item.productId,
-        name: item.product.name,
-        size: item.size,
-        quantity: item.quantity,
-        price: item.product.price,
-      })),
+      items: cartItems
+        .filter((item) => item.product)
+        .map((item) => ({
+          productId: item.productId,
+          name: item.product!.name,
+          size: item.size,
+          quantity: item.quantity,
+          price: item.product!.price,
+        })),
       total,
     };
 
-    fetch('https://africanstyle-tn-2.onrender.com/api/orders', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    fetch("https://africanstyle-tn-2.onrender.com/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(orderPayload),
     })
-      .then(async res => {
+      .then(async (res) => {
         if (!res.ok) {
           const errorText = await res.text();
-          throw new Error(errorText || 'Order creation failed');
+          throw new Error(errorText || "Order creation failed");
         }
         return res.json();
       })
-      .then(order => {
-        // Si backend renvoie _id
+      .then((order) => {
         setOrderNumber(`AS${order._id || order.id || orderId}`);
-        setOrderStep('confirmation');
+        setOrderStep("confirmation");
       })
-      .catch(err => {
-        alert('Order failed: ' + err.message);
+      .catch((err) => {
+        alert("Order failed: " + err.message);
       });
   };
 
-  // ÉTAT : Confirmation
-  if (orderStep === 'confirmation') {
+  // 🔹 Confirmation
+  if (orderStep === "confirmation") {
     return (
       <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center py-20">
         <motion.div
@@ -162,8 +159,8 @@ export function CartPage({
     );
   }
 
-  // ÉTAT : Panier vide → basé sur cartItems (ce qu'on a vraiment du backend)
-  if (cartItems.length === 0 && orderStep === 'cart') {
+  // 🔹 Panier vide (selon le state global `cart`)
+  if (cart.length === 0) {
     return (
       <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center">
         <motion.div
@@ -186,8 +183,8 @@ export function CartPage({
     );
   }
 
-  // ÉTAT : Checkout
-  if (orderStep === 'checkout') {
+  // 🔹 Étape Checkout
+  if (orderStep === "checkout") {
     return (
       <div className="min-h-screen bg-[#F5F5F5]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -197,7 +194,7 @@ export function CartPage({
             transition={{ duration: 0.6 }}
           >
             <button
-              onClick={() => setOrderStep('cart')}
+              onClick={() => setOrderStep("cart")}
               className="text-[#FF8C00] mb-8 hover:underline"
             >
               ← Back to Cart
@@ -206,18 +203,16 @@ export function CartPage({
             <h1 className="mb-8 text-[#2C2C2C]">Checkout</h1>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Order Form */}
+              {/* Formulaire */}
               <div className="lg:col-span-2">
                 <form onSubmit={handleCheckout} className="bg-white p-8 rounded-xl shadow-sm">
                   <h2 className="mb-6 text-[#2C2C2C]">Delivery Information</h2>
 
-                  {/* Name */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
-                      <label htmlFor="firstName" className="block mb-2 text-[#2C2C2C]">First Name *</label>
+                      <label className="block mb-2 text-[#2C2C2C]">First Name *</label>
                       <input
                         type="text"
-                        id="firstName"
                         name="firstName"
                         value={orderData.firstName}
                         onChange={handleOrderChange}
@@ -226,10 +221,9 @@ export function CartPage({
                       />
                     </div>
                     <div>
-                      <label htmlFor="lastName" className="block mb-2 text-[#2C2C2C]">Last Name *</label>
+                      <label className="block mb-2 text-[#2C2C2C]">Last Name *</label>
                       <input
                         type="text"
-                        id="lastName"
                         name="lastName"
                         value={orderData.lastName}
                         onChange={handleOrderChange}
@@ -239,13 +233,11 @@ export function CartPage({
                     </div>
                   </div>
 
-                  {/* Contact */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
-                      <label htmlFor="email" className="block mb-2 text-[#2C2C2C]">Email *</label>
+                      <label className="block mb-2 text-[#2C2C2C]">Email *</label>
                       <input
                         type="email"
-                        id="email"
                         name="email"
                         value={orderData.email}
                         onChange={handleOrderChange}
@@ -254,10 +246,9 @@ export function CartPage({
                       />
                     </div>
                     <div>
-                      <label htmlFor="phone" className="block mb-2 text-[#2C2C2C]">Phone *</label>
+                      <label className="block mb-2 text-[#2C2C2C]">Phone *</label>
                       <input
                         type="tel"
-                        id="phone"
                         name="phone"
                         value={orderData.phone}
                         onChange={handleOrderChange}
@@ -267,12 +258,10 @@ export function CartPage({
                     </div>
                   </div>
 
-                  {/* Address */}
                   <div className="mb-6">
-                    <label htmlFor="address" className="block mb-2 text-[#2C2C2C]">Address *</label>
+                    <label className="block mb-2 text-[#2C2C2C]">Address *</label>
                     <input
                       type="text"
-                      id="address"
                       name="address"
                       value={orderData.address}
                       onChange={handleOrderChange}
@@ -283,10 +272,9 @@ export function CartPage({
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
-                      <label htmlFor="city" className="block mb-2 text-[#2C2C2C]">City *</label>
+                      <label className="block mb-2 text-[#2C2C2C]">City *</label>
                       <input
                         type="text"
-                        id="city"
                         name="city"
                         value={orderData.city}
                         onChange={handleOrderChange}
@@ -295,10 +283,9 @@ export function CartPage({
                       />
                     </div>
                     <div>
-                      <label htmlFor="postalCode" className="block mb-2 text-[#2C2C2C]">Postal Code *</label>
+                      <label className="block mb-2 text-[#2C2C2C]">Postal Code *</label>
                       <input
                         type="text"
-                        id="postalCode"
                         name="postalCode"
                         value={orderData.postalCode}
                         onChange={handleOrderChange}
@@ -308,28 +295,31 @@ export function CartPage({
                     </div>
                   </div>
 
-                  {/* Delivery Method */}
                   <div className="mb-6">
                     <label className="block mb-3 text-[#2C2C2C]">Delivery Method *</label>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <button
                         type="button"
-                        onClick={() => setOrderData({ ...orderData, deliveryMethod: 'home' })}
+                        onClick={() =>
+                          setOrderData({ ...orderData, deliveryMethod: "home" })
+                        }
                         className={`p-4 rounded-lg border-2 transition-all text-left ${
-                          orderData.deliveryMethod === 'home'
-                            ? 'border-[#FF8C00] bg-[#FF8C00]/5'
-                            : 'border-gray-300 hover:border-[#FF8C00]'
+                          orderData.deliveryMethod === "home"
+                            ? "border[#FF8C00] bg-[#FF8C00]/5"
+                            : "border-gray-300 hover:border-[#FF8C00]"
                         }`}
                       >
                         Home Delivery
                       </button>
                       <button
                         type="button"
-                        onClick={() => setOrderData({ ...orderData, deliveryMethod: 'pickup' })}
+                        onClick={() =>
+                          setOrderData({ ...orderData, deliveryMethod: "pickup" })
+                        }
                         className={`p-4 rounded-lg border-2 transition-all text-left ${
-                          orderData.deliveryMethod === 'pickup'
-                            ? 'border-[#FF8C00] bg-[#FF8C00]/5'
-                            : 'border-gray-300 hover:border-[#FF8C00]'
+                          orderData.deliveryMethod === "pickup"
+                            ? "border[#FF8C00] bg-[#FF8C00]/5"
+                            : "border-gray-300 hover:border-[#FF8C00]"
                         }`}
                       >
                         Pickup Point
@@ -337,13 +327,11 @@ export function CartPage({
                     </div>
                   </div>
 
-                  {/* Special Notes */}
                   <div className="mb-6">
-                    <label htmlFor="notes" className="block mb-2 text-[#2C2C2C]">
+                    <label className="block mb-2 text-[#2C2C2C]">
                       Special Notes (Optional)
                     </label>
                     <textarea
-                      id="notes"
                       name="notes"
                       value={orderData.notes}
                       onChange={handleOrderChange}
@@ -362,32 +350,48 @@ export function CartPage({
                 </form>
               </div>
 
-              {/* Order Summary */}
+              {/* Résumé de commande */}
               <div className="lg:col-span-1">
                 <div className="bg-white p-6 rounded-xl shadow-sm sticky top-24">
                   <h3 className="mb-4 text-[#2C2C2C]">Order Summary</h3>
-                  
+
                   <div className="space-y-3 mb-6">
-                    {cartItems.map((item) => (
-                      <div key={`${item.productId}-${item.size}`} className="flex gap-3">
-                        <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                          <ImageWithFallback
-                            src={item.product.images[0]}
-                            alt={item.product.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[#2C2C2C] line-clamp-1">{item.product.name}</p>
-                          <p className="text-gray-600">
-                            Size: {item.size} × {item.quantity}
-                          </p>
-                          <p className="text-[#FF8C00]">
-                            ${(item.product.price * item.quantity).toFixed(2)}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+                    {cartItems.map(
+                      (item) =>
+                        item.product && (
+                          <div
+                            key={`${item.productId}-${item.size}`}
+                            className="flex gap-3"
+                          >
+                            <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                              <ImageWithFallback
+                                src={
+                                  (item.product.images &&
+                                    item.product.images[0]) ||
+                                  (item.product.image as string) ||
+                                  ""
+                                }
+                                alt={item.product.name}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[#2C2C2C] line-clamp-1">
+                                {item.product.name}
+                              </p>
+                              <p className="text-gray-600">
+                                Size: {item.size} × {item.quantity}
+                              </p>
+                              <p className="text-[#FF8C00]">
+                                $
+                                {(
+                                  item.product.price * item.quantity
+                                ).toFixed(2)}
+                              </p>
+                            </div>
+                          </div>
+                        )
+                    )}
                   </div>
 
                   <div className="border-t border-gray-200 pt-4 space-y-2">
@@ -397,11 +401,15 @@ export function CartPage({
                     </div>
                     <div className="flex justify-between text-gray-600">
                       <span>Shipping</span>
-                      <span>{shippingFee === 0 ? 'FREE' : `$${shippingFee.toFixed(2)}`}</span>
+                      <span>
+                        {shippingFee === 0 ? "FREE" : `$${shippingFee.toFixed(2)}`}
+                      </span>
                     </div>
                     <div className="flex justify-between text-[#2C2C2C] pt-2 border-t border-gray-200">
                       <span>Total</span>
-                      <span className="text-[#FF8C00]">${total.toFixed(2)}</span>
+                      <span className="text-[#FF8C00]">
+                        ${total.toFixed(2)}
+                      </span>
                     </div>
                   </div>
 
@@ -421,7 +429,7 @@ export function CartPage({
     );
   }
 
-  // ÉTAT : Panier affiché
+  // 🔹 Étape "Panier"
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -433,85 +441,96 @@ export function CartPage({
           <h1 className="mb-8 text-[#2C2C2C]">Shopping Cart</h1>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Cart Items */}
+            {/* Items du panier */}
             <div className="lg:col-span-2 space-y-4">
-              {cartItems.map((item) => (
-                <div
-                  key={`${item.productId}-${item.size}`}
-                  className="bg-white p-6 rounded-xl shadow-sm"
-                >
-                  <div className="flex gap-6">
-                    <button
-                      onClick={() => navigateToProduct(item.productId)}
-                      className="w-32 h-32 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0"
-                    >
-                      <ImageWithFallback
-                        src={item.product.images[0]}
-                        alt={item.product.name}
-                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-                      />
-                    </button>
-
-                    <div className="flex-1 min-w-0">
+              {cartItems.map((item) =>
+                item.product ? (
+                  <div
+                    key={`${item.productId}-${item.size}`}
+                    className="bg-white p-6 rounded-xl shadow-sm"
+                  >
+                    <div className="flex gap-6">
                       <button
                         onClick={() => navigateToProduct(item.productId)}
-                        className="text-[#2C2C2C] mb-2 hover:text-[#FF8C00] transition-colors text-left"
+                        className="w-32 h-32 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0"
                       >
-                        {item.product.name}
+                        <ImageWithFallback
+                          src={
+                            (item.product.images &&
+                              item.product.images[0]) ||
+                            (item.product.image as string) ||
+                            ""
+                          }
+                          alt={item.product.name}
+                          className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                        />
                       </button>
-                      <p className="text-gray-600 mb-4">Size: {item.size}</p>
-                      <p className="text-[#FF8C00] mb-4">
-                        ${item.product.price.toFixed(2)}
-                      </p>
 
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
+                      <div className="flex-1 min-w-0">
+                        <button
+                          onClick={() => navigateToProduct(item.productId)}
+                          className="text-[#2C2C2C] mb-2 hover:text-[#FF8C00] transition-colors text-left"
+                        >
+                          {item.product.name}
+                        </button>
+                        <p className="text-gray-600 mb-4">Size: {item.size}</p>
+                        <p className="text-[#FF8C00] mb-4">
+                          ${item.product.price.toFixed(2)}
+                        </p>
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={() =>
+                                updateCartItemQuantity(
+                                  item.productId,
+                                  item.size,
+                                  item.quantity - 1
+                                )
+                              }
+                              className="w-8 h-8 rounded-lg border-2 border-gray-300 flex items-center justify-center hover:border-[#FF8C00] transition-colors"
+                            >
+                              <Minus className="w-4 h-4" />
+                            </button>
+                            <span className="w-8 text-center">
+                              {item.quantity}
+                            </span>
+                            <button
+                              onClick={() =>
+                                updateCartItemQuantity(
+                                  item.productId,
+                                  item.size,
+                                  item.quantity + 1
+                                )
+                              }
+                              className="w-8 h-8 rounded-lg border-2 border-gray-300 flex items-center justify-center hover:border-[#FF8C00] transition-colors"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </button>
+                          </div>
+
                           <button
                             onClick={() =>
-                              updateCartItemQuantity(
-                                item.productId,
-                                item.size,
-                                item.quantity - 1
-                              )
+                              removeFromCart(item.productId, item.size)
                             }
-                            className="w-8 h-8 rounded-lg border-2 border-gray-300 flex items-center justify-center hover:border-[#FF8C00] transition-colors"
+                            className="text-red-500 hover:text-red-600 transition-colors flex items-center gap-2"
                           >
-                            <Minus className="w-4 h-4" />
-                          </button>
-                          <span className="w-8 text-center">{item.quantity}</span>
-                          <button
-                            onClick={() =>
-                              updateCartItemQuantity(
-                                item.productId,
-                                item.size,
-                                item.quantity + 1
-                              )
-                            }
-                            className="w-8 h-8 rounded-lg border-2 border-gray-300 flex items-center justify-center hover:border-[#FF8C00] transition-colors"
-                          >
-                            <Plus className="w-4 h-4" />
+                            <Trash2 className="w-4 h-4" />
+                            Remove
                           </button>
                         </div>
-
-                        <button
-                          onClick={() => removeFromCart(item.productId, item.size)}
-                          className="text-red-500 hover:text-red-600 transition-colors flex items-center gap-2"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          Remove
-                        </button>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ) : null
+              )}
             </div>
 
-            {/* Order Summary */}
+            {/* Résumé */}
             <div className="lg:col-span-1">
               <div className="bg-white p-6 rounded-xl shadow-sm sticky top-24">
                 <h3 className="mb-6 text-[#2C2C2C]">Order Summary</h3>
-                
+
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between text-gray-600">
                     <span>Subtotal</span>
@@ -519,11 +538,15 @@ export function CartPage({
                   </div>
                   <div className="flex justify-between text-gray-600">
                     <span>Shipping</span>
-                    <span>{shippingFee === 0 ? 'FREE' : `$${shippingFee.toFixed(2)}`}</span>
+                    <span>
+                      {shippingFee === 0 ? "FREE" : `$${shippingFee.toFixed(2)}`}
+                    </span>
                   </div>
                   <div className="flex justify-between text-[#2C2C2C] pt-3 border-t border-gray-200">
                     <span>Total</span>
-                    <span className="text-[#FF8C00]">${total.toFixed(2)}</span>
+                    <span className="text-[#FF8C00]">
+                      ${total.toFixed(2)}
+                    </span>
                   </div>
                 </div>
 
@@ -536,7 +559,7 @@ export function CartPage({
                 )}
 
                 <button
-                  onClick={() => setOrderStep('checkout')}
+                  onClick={() => setOrderStep("checkout")}
                   className="w-full bg-[#FF8C00] text-white px-8 py-4 rounded-lg hover:bg-[#FF8C00]/90 transition-colors mb-3"
                 >
                   Proceed to Checkout
