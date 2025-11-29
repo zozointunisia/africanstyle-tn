@@ -35,7 +35,7 @@ export function CartPage({
 
   const [cartItems, setCartItems] = React.useState<CartItem[]>([]);
   useEffect(() => {
-    fetch('http://localhost:4000/api/cart')
+    fetch('https://africanstyle-tn-1.onrender.com/api/cart')
       .then(res => res.json())
       .then(data => {
         // Merge product details into each cart item
@@ -129,7 +129,7 @@ Thank you for your order!
       })),
       total
     };
-    fetch('http://localhost:4000/api/orders', {
+    fetch('https://africanstyle-tn-1.onrender.com/api/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(orderPayload)
