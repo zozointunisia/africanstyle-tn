@@ -17,7 +17,7 @@ export function ProductPage({ productId, addToCart, navigateToProduct }: Product
   const [product, setProduct] = React.useState<Product | null>(null);
   useEffect(() => {
       // ...existing code...
-    fetch(`https://africanstyle-tn-1.onrender.com/api/products`)
+    fetch(`https://africanstyle-tn.onrender.com/api/products`)
       .then(res => res.json())
       .then(data => {
         const found = data.find((p: Product) => p.id === productId);
@@ -60,7 +60,7 @@ export function ProductPage({ productId, addToCart, navigateToProduct }: Product
   const [similarProducts, setSimilarProducts] = React.useState([]);
   useEffect(() => {
     if (product) {
-      fetch(`https://africanstyle-tn-1.onrender.com/api/products`)
+      fetch(`https://africanstyle-tn.onrender.com/api/products`)
         .then(res => res.json())
         .then(data => {
           setSimilarProducts(
