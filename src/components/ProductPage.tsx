@@ -1,32 +1,35 @@
-import * as React from "react";
-import { useEffect, useState } from "react";
-import { Product } from "../App";
-import { motion } from "motion/react";
-import { Minus, Plus, ShoppingCart, MessageCircle } from "lucide-react";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
+import * as React from 'react';
+import { useEffect, useState } from 'react';
+import { Product } from '../App';
+import { motion } from 'motion/react';
+import { Minus, Plus, ShoppingCart, MessageCircle } from 'lucide-react';
+import { ImageWithFallback } from './figma/ImageWithFallback';
 
 type ProductPageProps = {
   productId: string;
-  addToCart: (productId: string, quantity: number, size: string) => void;
+  addToCart: (product: Product, quantity: number, size: string) => void;
   navigateToProduct: (productId: string) => void;
 };
 
 export function ProductPage({ productId, addToCart }: ProductPageProps) {
   const [product, setProduct] = useState<Product | null>(null);
-  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedSize, setSelectedSize] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
 
   useEffect(() => {
     if (!productId) return;
 
-    fetch("https://africanstyle-tn-2.onrender.com/api/products")
-      .then((res) => res.json())
-      .then((data: any[]) => {
-        const found = data.find((p) => p._id === productId) || null;
+    fetch('https://africanstyle-tn-2.onrender.com/api/products')
+      .then(res => res.json())
+      .then((data: Product[]) => {
+        const found = data.find((p: any) => p._id === productId) || null;
         setProduct(found);
       })
-      .catch(() => setProduct(null));
+      .catch(err => {
+        console.error('Error fetching product:', err);
+        setProduct(null);
+      });
   }, [productId]);
 
   if (!product) {
@@ -39,64 +42,54 @@ export function ProductPage({ productId, addToCart }: ProductPageProps) {
 
   const mainImage =
     (product.images && product.images.length > 0 && product.images[0]) ||
-    (product as any).image ||
-    "";
+    product.image ||
+    '';
 
   const handleAddToCart = () => {
     if (!selectedSize) {
-      alert("Please select a size");
+      alert('Please select a size');
       return;
     }
-    // @ts-ignore backend uses _id
-    addToCart((product as any)._id, quantity, selectedSize);
+    addToCart(product, quantity, selectedSize);
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
   };
 
   const handleOrderDirectly = () => {
     if (!selectedSize) {
-      alert("Please select a size");
+      alert('Please select a size');
       return;
     }
-    const message = `Hello! I'm interested in ordering:\n\nProduct: ${
-      product.name
-    }\nSize: ${selectedSize}\nQuantity: ${quantity}\nPrice: $${(
-      product.price * quantity
-    ).toFixed(2)}`;
-    window.open(
-      `https://wa.me/21600000000?text=${encodeURIComponent(message)}`,
-      "_blank"
-    );
+    const message = `Hello! I'm interested in ordering:\n\nProduct: ${product.name}\nSize: ${selectedSize}\nQuantity: ${quantity}\nPrice: $${(product.price * quantity).toFixed(2)}`;
+    window.open(`https://wa.me/21600000000?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 lg:grid-cols-2 gap-10">
-        {/* IMAGE */}
-        <div className="flex items-center justify-center">
-  {mainImage ? (
-    <div className="w-full max-w-[350px] aspect-[3/4] bg-white rounded-xl overflow-hidden shadow-sm mb-6 flex items-center justify-center">
-      <ImageWithFallback
-        src={mainImage}
-        alt={product.name}
-        className="max-w-full max-h-full object-contain p-4"
-      />
-    </div>
-  ) : (
-    <div className="w-full max-w-[350px] aspect-[3/4] bg-gray-100 rounded-xl mb-6 flex items-center justify-center text-gray-400 text-sm">
-      No image available yet
-    </div>
-  )}
-</div>
-        
-            
-        {/* INFORMATIONS */}
+        {/* Image */}
+        <div>
+          {mainImage ? (
+            <div className="w-full aspect-[3/4] bg-gray-100 rounded-xl overflow-hidden mb-6 max-h-[450px]">
+              <ImageWithFallback
+                src={mainImage}
+                alt={product.name}
+                className="w-full h-full object-contain block"
+              />
+            </div>
+          ) : (
+            <div className="w-full aspect-[3/4] bg-gray-100 rounded-xl mb-6 flex items-center justify-center text-gray-400 text-sm">
+              No image available yet
+            </div>
+          )}
+        </div>
+
+        {/* Infos produit */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          {/* Badges */}
           <div className="flex gap-2 mb-4">
             {product.isNew && (
               <span className="bg-[#FF8C00] text-white px-3 py-1 rounded-full text-xs uppercase tracking-wide">
@@ -135,8 +128,8 @@ export function ProductPage({ productId, addToCart }: ProductPageProps) {
                     onClick={() => setSelectedSize(size)}
                     className={`px-6 py-3 rounded-lg border-2 text-sm transition-all ${
                       selectedSize === size
-                        ? "border-[#FF8C00] bg-[#FF8C00] text-white"
-                        : "border-gray-300 text-[#2C2C2C] hover:border-[#FF8C00]"
+                        ? 'border-[#FF8C00] bg-[#FF8C00] text-white'
+                        : 'border-gray-300 text-[#2C2C2C] hover:border-[#FF8C00]'
                     }`}
                   >
                     {size}
@@ -154,30 +147,29 @@ export function ProductPage({ productId, addToCart }: ProductPageProps) {
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                className="w-10 h-10 rounded-lg border-2 border-gray-300 flex items-center justify-center hover:border-[#FF8C00]"
+                className="w-10 h-10 rounded-lg border-2 border-gray-300 flex items-center justify-center hover:border-[#FF8C00] transition-colors"
               >
                 <Minus className="w-4 h-4" />
               </button>
               <span className="w-12 text-center">{quantity}</span>
               <button
                 onClick={() => setQuantity(quantity + 1)}
-                className="w-10 h-10 rounded-lg border-2 border-gray-300 flex items-center justify-center hover:border-[#FF8C00]"
+                className="w-10 h-10 rounded-lg border-2 border-gray-300 flex items-center justify-center hover:border-[#FF8C00] transition-colors"
               >
                 <Plus className="w-4 h-4" />
               </button>
             </div>
           </div>
 
-          {/* Buttons */}
+          {/* Boutons */}
           <div className="space-y-4 mb-8">
             <button
               onClick={handleAddToCart}
               className="w-full bg-[#FF8C00] text-white px-8 py-4 rounded-lg hover:bg-[#FF8C00]/90 transition-colors flex items-center justify-center gap-2"
             >
               <ShoppingCart className="w-5 h-5" />
-              {addedToCart ? "Added to Cart!" : "Add to Cart"}
+              {addedToCart ? 'Added to Cart!' : 'Add to Cart'}
             </button>
-
             <button
               onClick={handleOrderDirectly}
               className="w-full bg-[#009E60] text-white px-8 py-4 rounded-lg hover:bg-[#009E60]/90 transition-colors flex items-center justify-center gap-2"
@@ -187,21 +179,21 @@ export function ProductPage({ productId, addToCart }: ProductPageProps) {
             </button>
           </div>
 
-          {/* Details */}
+          {/* Détails */}
           <div className="border-t border-gray-200 pt-6 space-y-2 text-gray-600 text-sm">
             <p>
-              <span className="text-[#2C2C2C] font-medium">Category:</span>{" "}
+              <span className="text-[#2C2C2C] font-medium">Category:</span>{' '}
               {product.category}
             </p>
             {product.fabric && (
               <p>
-                <span className="text-[#2C2C2C] font-medium">Fabric:</span>{" "}
+                <span className="text-[#2C2C2C] font-medium">Fabric:</span>{' '}
                 {product.fabric}
               </p>
             )}
             {product.origin && (
               <p>
-                <span className="text-[#2C2C2C] font-medium">Origin:</span>{" "}
+                <span className="text-[#2C2C2C] font-medium">Origin:</span>{' '}
                 {product.origin}
               </p>
             )}
