@@ -40,6 +40,7 @@ export function ProductPage({ productId, addToCart }: ProductPageProps) {
     );
   }
 
+  // 🔹 On choisit l'image principale
   const mainImage =
     (product.images && product.images.length > 0 && product.images[0]) ||
     product.image ||
@@ -67,24 +68,24 @@ export function ProductPage({ productId, addToCart }: ProductPageProps) {
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 lg:grid-cols-2 gap-10">
-        {/* Image */}
-        <div>
+        {/* 🖼 Colonne image avec ton bloc */}
+        <div className="flex items-center justify-center">
           {mainImage ? (
-            <div className="w-full max-w-[320px] mx-auto aspect-[3/4] bg-gray-100 rounded-xl overflow-hidden mb-6 max-h-[420px]">
-  <ImageWithFallback
-    src={mainImage}
-    alt={product.name}
-    className="w-full h-full object-contain block"
-  />
-</div>
+            <div className="w-full max-w-[350px] aspect-[3/4] bg-white rounded-xl overflow-hidden shadow-sm mb-6 flex items-center justify-center">
+              <ImageWithFallback
+                src={mainImage}
+                alt={product.name}
+                className="max-w-full max-h-full object-contain p-4"
+              />
+            </div>
           ) : (
-            <div className="w-full aspect-[3/4] bg-gray-100 rounded-xl mb-6 flex items-center justify-center text-gray-400 text-sm">
+            <div className="w-full max-w-[350px] aspect-[3/4] bg-gray-100 rounded-xl mb-6 flex items-center justify-center text-gray-400 text-sm">
               No image available yet
             </div>
           )}
         </div>
 
-        {/* Infos produit */}
+        {/* ℹ️ Colonne infos produit */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -179,7 +180,7 @@ export function ProductPage({ productId, addToCart }: ProductPageProps) {
             </button>
           </div>
 
-          {/* Détails */}
+          {/* Détails simples */}
           <div className="border-t border-gray-200 pt-6 space-y-2 text-gray-600 text-sm">
             <p>
               <span className="text-[#2C2C2C] font-medium">Category:</span>{' '}
