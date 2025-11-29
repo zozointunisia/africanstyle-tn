@@ -26,7 +26,7 @@ export function CatalogPage({ navigateToProduct }: CatalogPageProps) {
     const [products, setProducts] = React.useState([]);
 
     React.useEffect(() => {
-      fetch('https://africanstyle-tn-1.onrender.com/api/products')
+      fetch('https://africanstyle-tn.onrender.com/api/products')
         .then(res => res.json())
         .then(data => setProducts(data));
     }, []);
