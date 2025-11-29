@@ -1,16 +1,14 @@
-import React from "react";
-import { useState, useEffect } from 'react';
-// ...existing code...
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Minus, Plus, Trash2, ShoppingBag, Package, MapPin } from 'lucide-react';
 import { CartItem, Product } from '../App';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
 type CartPageProps = {
-  cart: CartItem[];
-  updateCartItemQuantity: (productId: number, size: string, quantity: number) => void;
-  removeFromCart: (productId: number, size: string) => void;
-  navigateToProduct: (productId: number) => void;
+  cart: CartItem[]; // (tu peux même le supprimer plus tard si tu veux tout backend)
+  updateCartItemQuantity: (productId: string, size: string, quantity: number) => void;
+  removeFromCart: (productId: string, size: string) => void;
+  navigateToProduct: (productId: string) => void;
 };
 
 export function CartPage({
@@ -19,7 +17,7 @@ export function CartPage({
   removeFromCart,
   navigateToProduct,
 }: CartPageProps) {
-  const [orderStep, setOrderStep] = React.useState('cart');
+  const [orderStep, setOrderStep] = useState<'cart' | 'checkout' | 'confirmation'>('cart');
   const [orderNumber, setOrderNumber] = useState('');
   const [orderData, setOrderData] = useState({
     firstName: '',
@@ -33,20 +31,29 @@ export function CartPage({
     notes: '',
   });
 
-  const [cartItems, setCartItems] = React.useState<CartItem[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+
+  // Charger cart + produits depuis l'API, puis fusionner
   useEffect(() => {
-    fetch('https://africanstyle-tn-2.onrender.com/api/cart')
-      .then(res => res.json())
-      .then(data => {
-        // Merge product details into each cart item
-        import('../data/products').then(module => {
-          const products = module.products;
-          const merged = data.map((item: any) => ({
-            ...item,
-            product: products.find((p: any) => p.id === item.productId)
-          }));
-          setCartItems(merged);
-        });
+    Promise.all([
+      fetch('https://africanstyle-tn-2.onrender.com/api/cart').then(res => res.json()),
+      fetch('https://africanstyle-tn-2.onrender.com/api/products').then(res => res.json()),
+    ])
+      .then(([cartData, products]: [any[], Product[]]) => {
+        const merged = cartData
+          .map((item: any) => {
+            const product = products.find((p) => p._id === item.productId);
+            if (!product) return null;
+            return {
+              ...item,
+              product,
+            } as CartItem;
+          })
+          .filter(Boolean) as CartItem[];
+        setCartItems(merged);
+      })
+      .catch((err) => {
+        console.error('Error loading cart:', err);
       });
   }, []);
 
@@ -70,45 +77,11 @@ export function CartPage({
   const handleCheckout = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Generate order number
+    // Générer un numéro de commande local
     const orderId = `AS${Date.now().toString().slice(-8)}`;
     setOrderNumber(orderId);
 
-    // Create order summary
-    const orderSummary = `
-ORDER CONFIRMATION - AfricanStyle TN
-Order Number: ${orderId}
-
-CUSTOMER INFORMATION:
-Name: ${orderData.firstName} ${orderData.lastName}
-Email: ${orderData.email}
-Phone: ${orderData.phone}
-
-DELIVERY ADDRESS:
-${orderData.address}
-${orderData.city}, ${orderData.postalCode}
-Delivery Method: ${orderData.deliveryMethod === 'home' ? 'Home Delivery' : 'Pickup Point'}
-
-${orderData.notes ? `Special Notes: ${orderData.notes}\n` : ''}
-ORDER ITEMS:
-${cartItems
-  .map(
-    (item) =>
-      `- ${item.product.name} (Size: ${item.size}) x${item.quantity} - $${(
-        item.product.price * item.quantity
-      ).toFixed(2)}`
-  )
-  .join('\n')}
-
-SUMMARY:
-Subtotal: $${subtotal.toFixed(2)}
-Shipping: ${shippingFee === 0 ? 'FREE' : `$${shippingFee.toFixed(2)}`}
-Total: $${total.toFixed(2)}
-
-Thank you for your order!
-    `;
-
-    // Prepare order data for backend
+    // Payload pour backend
     const orderPayload = {
       customer: {
         name: `${orderData.firstName} ${orderData.lastName}`,
@@ -118,21 +91,22 @@ Thank you for your order!
         city: orderData.city,
         postalCode: orderData.postalCode,
         deliveryMethod: orderData.deliveryMethod,
-        notes: orderData.notes
+        notes: orderData.notes,
       },
       items: cartItems.map(item => ({
         productId: item.productId,
         name: item.product.name,
         size: item.size,
         quantity: item.quantity,
-        price: item.product.price
+        price: item.product.price,
       })),
-      total
+      total,
     };
+
     fetch('https://africanstyle-tn-2.onrender.com/api/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(orderPayload)
+      body: JSON.stringify(orderPayload),
     })
       .then(async res => {
         if (!res.ok) {
@@ -142,16 +116,16 @@ Thank you for your order!
         return res.json();
       })
       .then(order => {
-        setOrderNumber(`AS${order._id || order.id}`);
+        // Si backend renvoie _id
+        setOrderNumber(`AS${order._id || order.id || orderId}`);
         setOrderStep('confirmation');
       })
       .catch(err => {
         alert('Order failed: ' + err.message);
       });
-
-    // ...existing code... (removed WhatsApp redirect)
   };
 
+  // ÉTAT : Confirmation
   if (orderStep === 'confirmation') {
     return (
       <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center py-20">
@@ -188,7 +162,8 @@ Thank you for your order!
     );
   }
 
-  if (cart.length === 0) {
+  // ÉTAT : Panier vide → basé sur cartItems (ce qu'on a vraiment du backend)
+  if (cartItems.length === 0 && orderStep === 'cart') {
     return (
       <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center">
         <motion.div
@@ -211,6 +186,7 @@ Thank you for your order!
     );
   }
 
+  // ÉTAT : Checkout
   if (orderStep === 'checkout') {
     return (
       <div className="min-h-screen bg-[#F5F5F5]">
@@ -339,14 +315,22 @@ Thank you for your order!
                       <button
                         type="button"
                         onClick={() => setOrderData({ ...orderData, deliveryMethod: 'home' })}
-                        className={`p-4 rounded-lg border-2 transition-all text-left ${orderData.deliveryMethod === 'home' ? 'border-[#FF8C00] bg-[#FF8C00]/5' : 'border-gray-300 hover:border-[#FF8C00]'}`}
+                        className={`p-4 rounded-lg border-2 transition-all text-left ${
+                          orderData.deliveryMethod === 'home'
+                            ? 'border-[#FF8C00] bg-[#FF8C00]/5'
+                            : 'border-gray-300 hover:border-[#FF8C00]'
+                        }`}
                       >
                         Home Delivery
                       </button>
                       <button
                         type="button"
                         onClick={() => setOrderData({ ...orderData, deliveryMethod: 'pickup' })}
-                        className={`p-4 rounded-lg border-2 transition-all text-left ${orderData.deliveryMethod === 'pickup' ? 'border-[#FF8C00] bg-[#FF8C00]/5' : 'border-gray-300 hover:border-[#FF8C00]'}`}
+                        className={`p-4 rounded-lg border-2 transition-all text-left ${
+                          orderData.deliveryMethod === 'pickup'
+                            ? 'border-[#FF8C00] bg-[#FF8C00]/5'
+                            : 'border-gray-300 hover:border-[#FF8C00]'
+                        }`}
                       >
                         Pickup Point
                       </button>
@@ -355,7 +339,9 @@ Thank you for your order!
 
                   {/* Special Notes */}
                   <div className="mb-6">
-                    <label htmlFor="notes" className="block mb-2 text-[#2C2C2C]">Special Notes (Optional)</label>
+                    <label htmlFor="notes" className="block mb-2 text-[#2C2C2C]">
+                      Special Notes (Optional)
+                    </label>
                     <textarea
                       id="notes"
                       name="notes"
@@ -435,6 +421,7 @@ Thank you for your order!
     );
   }
 
+  // ÉTAT : Panier affiché
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
