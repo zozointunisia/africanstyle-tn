@@ -83,7 +83,7 @@ export function ProductPage({ productId, addToCart }: ProductPageProps) {
               />
             </div>
           ) : (
-            <div className="w-full max-w-[420px] aspect-[3/4] bg-gray-100 rounded-xl mb-6 flex items-center justify-center text-gray-400 text-sm">
+            <div className="w-full max-w-[300px] aspect-[3/4] bg-gray-100 rounded-xl mb-6 flex items-center justify-center text-gray-400 text-sm">
               No image available yet
             </div>
           )}
