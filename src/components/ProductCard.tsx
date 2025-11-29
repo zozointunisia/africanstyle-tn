@@ -13,7 +13,7 @@ export function ProductCard({ product, navigateToProduct }: ProductCardProps) {
       whileHover={{ y: -12, scale: 1.02 }}
       transition={{ duration: 0.4, type: "spring", stiffness: 200 }}
       className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-shadow cursor-pointer group relative"
-      onClick={() => navigateToProduct(product.id)}
+      onClick={() => navigateToProduct(product._id)}
     >
       <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
         <motion.div
