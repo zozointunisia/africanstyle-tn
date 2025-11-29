@@ -22,8 +22,8 @@ export function ProductPage({ productId, addToCart }: ProductPageProps) {
 
     fetch("https://africanstyle-tn-2.onrender.com/api/products")
       .then((res) => res.json())
-      .then((data: Product[]) => {
-        const found = data.find((p: any) => p._id === productId) || null;
+      .then((data: any[]) => {
+        const found = data.find((p) => p._id === productId) || null;
         setProduct(found);
       })
       .catch(() => setProduct(null));
@@ -39,7 +39,7 @@ export function ProductPage({ productId, addToCart }: ProductPageProps) {
 
   const mainImage =
     (product.images && product.images.length > 0 && product.images[0]) ||
-    product.image ||
+    (product as any).image ||
     "";
 
   const handleAddToCart = () => {
@@ -47,7 +47,8 @@ export function ProductPage({ productId, addToCart }: ProductPageProps) {
       alert("Please select a size");
       return;
     }
-    addToCart(product._id, quantity, selectedSize);
+    // @ts-ignore backend uses _id
+    addToCart((product as any)._id, quantity, selectedSize);
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
   };
@@ -57,7 +58,9 @@ export function ProductPage({ productId, addToCart }: ProductPageProps) {
       alert("Please select a size");
       return;
     }
-    const message = `Hello! I'm interested in ordering:\n\nProduct: ${product.name}\nSize: ${selectedSize}\nQuantity: ${quantity}\nPrice: $${(
+    const message = `Hello! I'm interested in ordering:\n\nProduct: ${
+      product.name
+    }\nSize: ${selectedSize}\nQuantity: ${quantity}\nPrice: $${(
       product.price * quantity
     ).toFixed(2)}`;
     window.open(
@@ -69,7 +72,6 @@ export function ProductPage({ productId, addToCart }: ProductPageProps) {
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 lg:grid-cols-2 gap-10">
-        
         {/* IMAGE */}
         <div className="flex items-center justify-center">
           {mainImage ? (
@@ -185,4 +187,26 @@ export function ProductPage({ productId, addToCart }: ProductPageProps) {
           </div>
 
           {/* Details */}
-          <div class
+          <div className="border-t border-gray-200 pt-6 space-y-2 text-gray-600 text-sm">
+            <p>
+              <span className="text-[#2C2C2C] font-medium">Category:</span>{" "}
+              {product.category}
+            </p>
+            {product.fabric && (
+              <p>
+                <span className="text-[#2C2C2C] font-medium">Fabric:</span>{" "}
+                {product.fabric}
+              </p>
+            )}
+            {product.origin && (
+              <p>
+                <span className="text-[#2C2C2C] font-medium">Origin:</span>{" "}
+                {product.origin}
+              </p>
+            )}
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
