@@ -8,10 +8,10 @@ import { AboutPage } from './components/AboutPage';
 import { ContactPage } from './components/ContactPage';
 import { CartPage } from './components/CartPage';
 
-// 🔹 Type produit (API Mongo)
+// 🔹 Type produit venant de l'API Mongo
 export type Product = {
-  _id?: string;           // id Mongo (backend)
-  id?: number;            // ancien id numérique (si jamais)
+  _id?: string;           // id Mongo
+  id?: number;            // ancien id numérique (au cas où)
   name: string;
   price: number;
   category: string;
@@ -26,12 +26,12 @@ export type Product = {
   culturalInspiration?: string;
 };
 
-// 🔹 Type item de panier
+// 🔹 Type item de panier : on garde directement le produit
 export type CartItem = {
-  productId: string;   // _id du produit
+  productId: string;
   quantity: number;
   size: string;
-  product?: Product;   // optionnel, on ne l’utilise pas partout
+  product: Product;
 };
 
 export default function App() {
@@ -40,7 +40,7 @@ export default function App() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // 🔹 Charger le panier depuis localStorage au démarrage
+  // Charger le panier depuis localStorage
   useEffect(() => {
     const savedCart = localStorage.getItem('africanstyle-cart');
     if (savedCart) {
@@ -52,14 +52,20 @@ export default function App() {
     }
   }, []);
 
-  // 🔹 Sauvegarder le panier à chaque changement
+  // Sauvegarder le panier
   useEffect(() => {
     localStorage.setItem('africanstyle-cart', JSON.stringify(cart));
   }, [cart]);
 
-  // 🔹 Ajouter au panier (frontend + backend)
-  const addToCart = (productId: string, quantity: number, size: string) => {
-    // 1) Mettre à jour le panier en local (pour le badge + état vide/pas vide)
+  // 🔹 Ajouter au panier : on reçoit le product complet ici
+  const addToCart = (product: Product, quantity: number, size: string) => {
+    const productId = product._id ?? String(product.id ?? '');
+    if (!productId) {
+      console.error('No productId found for product', product);
+      return;
+    }
+
+    // 1) MAJ du state local
     setCart(prev => {
       const existing = prev.find(
         item => item.productId === productId && item.size === size
@@ -73,22 +79,20 @@ export default function App() {
         );
       }
 
-      // on ne connaît pas le détail du product ici, donc on laisse product?: undefined
-      return [...prev, { productId, quantity, size }];
+      return [...prev, { productId, quantity, size, product }];
     });
 
-    // 2) Envoyer aussi au backend
+    // 2) Appel backend (optionnel, pour persister côté API)
     fetch('https://africanstyle-tn-2.onrender.com/api/cart', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ productId, quantity, size }),
     }).catch(err => {
       console.error('Error saving cart to backend:', err);
-      // optionnel : afficher un toast / alert si tu veux
     });
   };
 
-  // 🔹 Modifier la quantité d’un article dans le panier
+  // 🔹 Mettre à jour la quantité
   const updateCartItemQuantity = (productId: string, size: string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(productId, size);
@@ -103,37 +107,33 @@ export default function App() {
       )
     );
 
-    // Optionnel : tu peux appeler un endpoint PUT/PATCH côté backend
+    // Optionnel : backend
     fetch('https://africanstyle-tn-2.onrender.com/api/cart', {
-      method: 'POST', // à adapter si tu as un endpoint spécifique
+      method: 'POST', // à adapter si tu fais un endpoint PUT
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ productId, quantity, size }),
     }).catch(err => console.error('Error updating cart:', err));
   };
 
-  // 🔹 Retirer un article du panier
+  // 🔹 Retirer du panier
   const removeFromCart = (productId: string, size: string) => {
     setCart(prev =>
       prev.filter(item => !(item.productId === productId && item.size === size))
     );
 
-    // Optionnel : backend DELETE
     fetch(`https://africanstyle-tn-2.onrender.com/api/cart/${productId}`, {
       method: 'DELETE',
     }).catch(err => console.error('Error deleting from cart:', err));
   };
 
-  // 🔹 Nombre total d’articles (pour le header)
   const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
 
-  // 🔹 Navigation vers une page produit
   const navigateToProduct = (productId: string) => {
     setSelectedProductId(productId);
     setCurrentPage('product');
     window.scrollTo(0, 0);
   };
 
-  // 🔹 Changer de page simple
   const navigateTo = (page: string) => {
     setCurrentPage(page);
     setMobileMenuOpen(false);
