@@ -75,7 +75,7 @@ export function ProductPage({ productId, addToCart }: ProductPageProps) {
         {/* IMAGE */}
         <div className="flex items-center justify-center">
           {mainImage ? (
-            <div className="w-full max-w-[420px] aspect-[3/4] bg-gray-100 rounded-xl overflow-hidden shadow-sm mb-6">
+            <div className="w-full max-w-[300px] aspect-[3/4] bg-gray-100 rounded-xl overflow-hidden shadow-sm mb-6">
               <ImageWithFallback
                 src={mainImage}
                 alt={product.name}
