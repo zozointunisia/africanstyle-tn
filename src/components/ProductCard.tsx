@@ -4,7 +4,7 @@ import { ImageWithFallback } from './figma/ImageWithFallback';
 
 type ProductCardProps = {
   product: Product;
-  navigateToProduct: (productId: number) => void;
+  navigateToProduct: (productId: string) => void; // <-- string maintenant
 };
 
 export function ProductCard({ product, navigateToProduct }: ProductCardProps) {
@@ -13,7 +13,7 @@ export function ProductCard({ product, navigateToProduct }: ProductCardProps) {
       whileHover={{ y: -12, scale: 1.02 }}
       transition={{ duration: 0.4, type: "spring", stiffness: 200 }}
       className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-shadow cursor-pointer group relative"
-      onClick={() => navigateToProduct(product._id)}
+      onClick={() => navigateToProduct(product._id)} // <-- _id venant de Mongo
     >
       <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
         <motion.div
