@@ -70,13 +70,13 @@ export function ProductPage({ productId, addToCart }: ProductPageProps) {
         {/* Image */}
         <div>
           {mainImage ? (
-            <div className="w-full aspect-[3/4] bg-gray-100 rounded-xl overflow-hidden mb-6 max-h-[450px]">
-              <ImageWithFallback
-                src={mainImage}
-                alt={product.name}
-                className="w-full h-full object-contain block"
-              />
-            </div>
+            <div className="w-full max-w-[320px] mx-auto aspect-[3/4] bg-gray-100 rounded-xl overflow-hidden mb-6 max-h-[420px]">
+  <ImageWithFallback
+    src={mainImage}
+    alt={product.name}
+    className="w-full h-full object-contain block"
+  />
+</div>
           ) : (
             <div className="w-full aspect-[3/4] bg-gray-100 rounded-xl mb-6 flex items-center justify-center text-gray-400 text-sm">
               No image available yet
