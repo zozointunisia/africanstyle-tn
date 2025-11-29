@@ -88,7 +88,6 @@ export function ProductPage({ productId, addToCart }: ProductPageProps) {
     </div>
   )}
 </div>
-          ) : (
             
         {/* INFORMATIONS */}
         <motion.div
