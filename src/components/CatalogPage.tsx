@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Filter, X } from 'lucide-react';
-// import { products } from '../data/products';
 import * as React from 'react';
 import { ProductCard } from './ProductCard';
+import { Product } from '../App'; // <-- on réutilise le type global
 
 type CatalogPageProps = {
-  navigateToProduct: (productId: number) => void;
+  navigateToProduct: (productId: string) => void; // <-- string, pas number
 };
 
 export function CatalogPage({ navigateToProduct }: CatalogPageProps) {
@@ -23,22 +23,25 @@ export function CatalogPage({ navigateToProduct }: CatalogPageProps) {
     { label: 'Over $200', min: 200, max: Infinity },
   ];
 
-    const [products, setProducts] = React.useState([]);
+  const [products, setProducts] = React.useState<Product[]>([]);
 
-    React.useEffect(() => {
-      fetch('https://africanstyle-tn-2.onrender.com/api/products')
-        .then(res => res.json())
-        .then(data => setProducts(data));
-    }, []);
+  React.useEffect(() => {
+    fetch('https://africanstyle-tn-2.onrender.com/api/products')
+      .then(res => res.json())
+      .then((data: Product[]) => setProducts(data));
+  }, []);
 
-    const filteredProducts = products.filter((product) => {
-    const categoryMatch = selectedCategory === 'All' || product.category === selectedCategory;
+  const filteredProducts = products.filter((product) => {
+    const categoryMatch =
+      selectedCategory === 'All' || product.category === selectedCategory;
+
     const priceRangeMatch =
       selectedPriceRange === 'All' ||
       (() => {
         const range = priceRanges.find((r) => r.label === selectedPriceRange);
         return range && product.price >= range.min && product.price < range.max;
       })();
+
     return categoryMatch && priceRangeMatch;
   });
 
@@ -116,7 +119,7 @@ export function CatalogPage({ navigateToProduct }: CatalogPageProps) {
           transition={{
             duration: 4,
             repeat: Infinity,
-            ease: "easeInOut",
+            ease: 'easeInOut',
           }}
         />
         
@@ -173,14 +176,17 @@ export function CatalogPage({ navigateToProduct }: CatalogPageProps) {
                 <AnimatePresence mode="popLayout">
                   {filteredProducts.map((product, index) => (
                     <motion.div
-                      key={product.id}
+                      key={product._id} // <-- _id ici
                       layout
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9 }}
                       transition={{ delay: index * 0.05, duration: 0.4 }}
                     >
-                      <ProductCard product={product} navigateToProduct={navigateToProduct} />
+                      <ProductCard
+                        product={product}
+                        navigateToProduct={navigateToProduct}
+                      />
                     </motion.div>
                   ))}
                 </AnimatePresence>
@@ -249,7 +255,7 @@ export function CatalogPage({ navigateToProduct }: CatalogPageProps) {
         className="fixed bottom-8 right-8 bg-[#FF8C00] text-white px-6 py-4 rounded-full shadow-2xl hover:bg-[#FF8C00]/90 transition-colors z-40"
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 1, type: "spring", stiffness: 200 }}
+        transition={{ delay: 1, type: 'spring', stiffness: 200 }}
         whileHover={{ scale: 1.1, y: -5 }}
         whileTap={{ scale: 0.95 }}
         style={{
