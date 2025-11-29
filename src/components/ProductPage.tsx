@@ -3,7 +3,6 @@ import { Product } from '../App';
 import * as React from 'react';
 import { motion } from 'motion/react';
 import { Minus, Plus, ShoppingCart, MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react';
-// import { products } from '../data/products';
 import { ProductCard } from './ProductCard';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
@@ -15,15 +14,16 @@ type ProductPageProps = {
 
 export function ProductPage({ productId, addToCart, navigateToProduct }: ProductPageProps) {
   const [product, setProduct] = React.useState<Product | null>(null);
+
   useEffect(() => {
-      // ...existing code...
     fetch(`https://africanstyle-tn-2.onrender.com/api/products`)
       .then(res => res.json())
-      .then(data => {
-        const found = data.find((p: Product) => p._id === productId);
-        setProduct(found || null);
+      .then((data: Product[]) => {
+        const found = data.find((p) => p._id === productId) || null;
+        setProduct(found);
       });
   }, [productId]);
+
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -43,7 +43,8 @@ export function ProductPage({ productId, addToCart, navigateToProduct }: Product
       alert('Please select a size');
       return;
     }
-    addToCart(product.id, quantity, selectedSize);
+    // IMPORTANT : utiliser _id ici
+    addToCart(product._id, quantity, selectedSize);
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
   };
@@ -57,15 +58,17 @@ export function ProductPage({ productId, addToCart, navigateToProduct }: Product
     window.open(`https://wa.me/21600000000?text=${encodeURIComponent(message)}`, '_blank');
   };
 
-  const [similarProducts, setSimilarProducts] = React.useState([]);
+  const [similarProducts, setSimilarProducts] = React.useState<Product[]>([]);
+
   useEffect(() => {
     if (product) {
       fetch(`https://africanstyle-tn-2.onrender.com/api/products`)
         .then(res => res.json())
-        .then(data => {
-          setSimilarProducts(
-            data.filter((p: Product) => p.category === product.category && p._id !== product._id).slice(0, 3)
-          );
+        .then((data: Product[]) => {
+          const filtered = data
+            .filter((p) => p.category === product.category && p._id !== product._id)
+            .slice(0, 3);
+          setSimilarProducts(filtered);
         });
     }
   }, [product]);
@@ -351,7 +354,7 @@ export function ProductPage({ productId, addToCart, navigateToProduct }: Product
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {similarProducts.map((similarProduct) => (
                 <ProductCard
-                  key={similarProduct.id}
+                  key={similarProduct._id}
                   product={similarProduct}
                   navigateToProduct={navigateToProduct}
                 />
