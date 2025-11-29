@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Product } from '../App';
 import { motion } from 'motion/react';
 import { Minus, Plus, ShoppingCart, MessageCircle } from 'lucide-react';
+import { ImageWithFallback } from './figma/ImageWithFallback';
 
 type ProductPageProps = {
   productId: string;
@@ -16,8 +17,7 @@ export function ProductPage({ productId, addToCart }: ProductPageProps) {
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
 
-  // 🔍 Pour débug : afficher l'id reçu
-  console.log('ProductPage productId =', productId);
+  console.log('🧩 ProductPage productId =', productId);
 
   useEffect(() => {
     if (!productId) return;
@@ -25,9 +25,9 @@ export function ProductPage({ productId, addToCart }: ProductPageProps) {
     fetch('https://africanstyle-tn-2.onrender.com/api/products')
       .then(res => res.json())
       .then((data: Product[]) => {
-        console.log('Products from API =', data);
-        const found = data.find((p) => p._id === productId) || null;
-        console.log('Found product =', found);
+        console.log('🧩 Products from API =', data);
+        const found = data.find((p: any) => p._id === productId) || null;
+        console.log('🧩 Found product =', found);
         setProduct(found);
       })
       .catch(err => {
@@ -43,6 +43,12 @@ export function ProductPage({ productId, addToCart }: ProductPageProps) {
       </div>
     );
   }
+
+  // 🔹 On choisit une image si dispo (sinon undefined → pas d’affichage)
+  const mainImage =
+    (product.images && product.images.length > 0 && product.images[0]) ||
+    product.image ||
+    '';
 
   const handleAddToCart = () => {
     if (!selectedSize) {
@@ -65,43 +71,78 @@ export function ProductPage({ productId, addToCart }: ProductPageProps) {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 lg:grid-cols-2 gap-10">
+        {/* ✅ Colonne image (si disponible) */}
+        <div>
+          {mainImage ? (
+            <div className="w-full aspect-[3/4] bg-gray-100 rounded-xl overflow-hidden mb-6">
+              <ImageWithFallback
+                src={mainImage}
+                alt={product.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          ) : (
+            <div className="w-full aspect-[3/4] bg-gray-100 rounded-xl mb-6 flex items-center justify-center text-gray-400 text-sm">
+              No image available yet
+            </div>
+          )}
+        </div>
+
+        {/* ✅ Colonne infos */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
+          <div className="flex gap-2 mb-4">
+            {product.isNew && (
+              <span className="bg-[#FF8C00] text-white px-3 py-1 rounded-full text-xs uppercase tracking-wide">
+                New
+              </span>
+            )}
+            {product.isBestSeller && (
+              <span className="bg-[#009E60] text-white px-3 py-1 rounded-full text-xs uppercase tracking-wide">
+                Best Seller
+              </span>
+            )}
+          </div>
+
           <h1 className="mb-4 text-[#2C2C2C] text-3xl font-semibold">
             {product.name}
           </h1>
-          <p className="text-[#FF8C00] mb-4 text-xl">
+
+          <p className="text-[#FF8C00] mb-4 text-2xl font-semibold">
             ${product.price.toFixed(2)}
           </p>
+
           <p className="text-gray-600 mb-8 leading-relaxed">
             {product.description}
           </p>
 
           {/* Sizes */}
-          <div className="mb-6">
-            <label className="block mb-3 text-[#2C2C2C] font-medium">
-              Select Size
-            </label>
-            <div className="flex flex-wrap gap-3">
-              {product.sizes.map((size) => (
-                <button
-                  key={size}
-                  onClick={() => setSelectedSize(size)}
-                  className={`px-6 py-3 rounded-lg border-2 transition-all ${
-                    selectedSize === size
-                      ? 'border-[#FF8C00] bg-[#FF8C00] text-white'
-                      : 'border-gray-300 text-[#2C2C2C] hover:border-[#FF8C00]'
-                  }`}
-                >
-                  {size}
-                </button>
-              ))}
+          {product.sizes && product.sizes.length > 0 && (
+            <div className="mb-6">
+              <label className="block mb-3 text-[#2C2C2C] font-medium">
+                Select Size
+              </label>
+              <div className="flex flex-wrap gap-3">
+                {product.sizes.map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
+                    className={`px-6 py-3 rounded-lg border-2 text-sm transition-all ${
+                      selectedSize === size
+                        ? 'border-[#FF8C00] bg-[#FF8C00] text-white'
+                        : 'border-gray-300 text-[#2C2C2C] hover:border-[#FF8C00]'
+                    }`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Quantity */}
           <div className="mb-8">
@@ -143,12 +184,24 @@ export function ProductPage({ productId, addToCart }: ProductPageProps) {
             </button>
           </div>
 
-          {/* Minimal details */}
-          <div className="border-t border-gray-200 pt-6 space-y-2 text-gray-600">
+          {/* Détails simples */}
+          <div className="border-t border-gray-200 pt-6 space-y-2 text-gray-600 text-sm">
             <p>
               <span className="text-[#2C2C2C] font-medium">Category:</span>{' '}
               {product.category}
             </p>
+            {product.fabric && (
+              <p>
+                <span className="text-[#2C2C2C] font-medium">Fabric:</span>{' '}
+                {product.fabric}
+              </p>
+            )}
+            {product.origin && (
+              <p>
+                <span className="text-[#2C2C2C] font-medium">Origin:</span>{' '}
+                {product.origin}
+              </p>
+            )}
           </div>
         </motion.div>
       </div>
