@@ -8,9 +8,9 @@ import { ProductCard } from './ProductCard';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
 type ProductPageProps = {
-  productId: number;
-  addToCart: (productId: number, quantity: number, size: string) => void;
-  navigateToProduct: (productId: number) => void;
+  productId: string;
+  addToCart: (productId: string, quantity: number, size: string) => void;
+  navigateToProduct: (productId: string) => void;
 };
 
 export function ProductPage({ productId, addToCart, navigateToProduct }: ProductPageProps) {
@@ -20,7 +20,7 @@ export function ProductPage({ productId, addToCart, navigateToProduct }: Product
     fetch(`https://africanstyle-tn-2.onrender.com/api/products`)
       .then(res => res.json())
       .then(data => {
-        const found = data.find((p: Product) => p.id === productId);
+        const found = data.find((p: Product) => p._id === productId);
         setProduct(found || null);
       });
   }, [productId]);
@@ -64,7 +64,7 @@ export function ProductPage({ productId, addToCart, navigateToProduct }: Product
         .then(res => res.json())
         .then(data => {
           setSimilarProducts(
-            data.filter((p: Product) => p.category === product.category && p.id !== product.id).slice(0, 3)
+            data.filter((p: Product) => p.category === product.category && p._id !== product._id).slice(0, 3)
           );
         });
     }
