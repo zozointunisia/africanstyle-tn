@@ -86,7 +86,6 @@ export default function App() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ productId, quantity, size }),
   }).catch(err => console.error(err));
-    });
   };
 
   // 🔹 Mettre à jour la quantité
