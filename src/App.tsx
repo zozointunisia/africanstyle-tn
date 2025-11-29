@@ -58,37 +58,34 @@ export default function App() {
   }, [cart]);
 
   // 🔹 Ajouter au panier : on reçoit le product complet ici
-  const addToCart = (product: Product, quantity: number, size: string) => {
-    const productId = product._id ?? String(product.id ?? '');
-    if (!productId) {
-      console.error('No productId found for product', product);
-      return;
+  const addToCart = (productId: string, quantity: number, size: string) => {
+  setCart(prev => {
+    const existing = prev.find(
+      item => item.productId === productId && item.size === size
+    );
+
+    if (existing) {
+      return prev.map(item =>
+        item.productId === productId && item.size === size
+          ? { ...item, quantity: item.quantity + quantity }
+          : item
+      );
     }
 
-    // 1) MAJ du state local
-    setCart(prev => {
-      const existing = prev.find(
-        item => item.productId === productId && item.size === size
-      );
+    // Si tu veux stocker le produit complet, il faut le passer ici,
+    // sinon mets product: null et on ajustera.
+    return [
+      ...prev,
+      { productId, quantity, size, product: (null as any) }
+    ];
+  });
 
-      if (existing) {
-        return prev.map(item =>
-          item.productId === productId && item.size === size
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
-      }
-
-      return [...prev, { productId, quantity, size, product }];
-    });
-
-    // 2) Appel backend (optionnel, pour persister côté API)
-    fetch('https://africanstyle-tn-2.onrender.com/api/cart', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productId, quantity, size }),
-    }).catch(err => {
-      console.error('Error saving cart to backend:', err);
+  // (optionnel) appel backend
+  fetch('https://africanstyle-tn-2.onrender.com/api/cart', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ productId, quantity, size }),
+  }).catch(err => console.error(err));
     });
   };
 
