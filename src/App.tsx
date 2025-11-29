@@ -7,17 +7,11 @@ import { ProductPage } from './components/ProductPage';
 import { AboutPage } from './components/AboutPage';
 import { ContactPage } from './components/ContactPage';
 import { CartPage } from './components/CartPage';
-import { products } from './data/products';
-
-export type CartItem = {
-  productId: string;
-  quantity: number;
-  size: string;
-  product: Product;
-};
+// import { products } from './data/products'; // plus utile si tu utilises l'API
 
 export type Product = {
-  id: number;
+  _id: string;              // vient de MongoDB
+  // id?: number;           // optionnel si tu gardes encore des données locales
   name: string;
   price: number;
   category: string;
@@ -31,9 +25,16 @@ export type Product = {
   culturalInspiration: string;
 };
 
+export type CartItem = {
+  productId: string;
+  quantity: number;
+  size: string;
+  product: Product;
+};
+
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
-  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -54,11 +55,11 @@ export default function App() {
     fetch('https://africanstyle-tn-2.onrender.com/api/cart', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productId, quantity })
+      body: JSON.stringify({ productId, quantity, size })
     })
       .then(res => res.json())
       .then(data => {
-        // Optionally update local cart state if needed
+        // Tu peux ici mettre à jour le state cart si ton API renvoie le panier
       });
   };
 
@@ -70,11 +71,11 @@ export default function App() {
     fetch('https://africanstyle-tn-2.onrender.com/api/cart', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productId, quantity })
+      body: JSON.stringify({ productId, quantity, size })
     })
       .then(res => res.json())
       .then(data => {
-        // Optionally update local cart state if needed
+        // Optionnel : mettre à jour le panier local
       });
   };
 
@@ -84,7 +85,7 @@ export default function App() {
     })
       .then(res => res.json())
       .then(data => {
-        // Optionally update local cart state if needed
+        // Optionnel : mettre à jour le panier local
       });
   };
 
@@ -110,11 +111,13 @@ export default function App() {
         return <CatalogPage navigateToProduct={navigateToProduct} />;
       case 'product':
         return (
-          <ProductPage
-            productId={selectedProductId!}
-            addToCart={addToCart}
-            navigateToProduct={navigateToProduct}
-          />
+          selectedProductId && (
+            <ProductPage
+              productId={selectedProductId}
+              addToCart={addToCart}
+              navigateToProduct={navigateToProduct}
+            />
+          )
         );
       case 'about':
         return <AboutPage navigateTo={navigateTo} />;
