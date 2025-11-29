@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 // Connect to MongoDB - OPTIONS OBSOLÈTES SUPPRIMÉES
-mongoose.connect('mongodb://localhost:27017/ecommerce')
+mongoose.connect('mongodb+srv://mohamedzorkot2004_db_user:1nmiiPCaFoJ4yxWI@africanstyle.abghtwj.mongodb.net/ecommerce?retryWrites=true&w=majority')
   .then(() => console.log('✓ Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
