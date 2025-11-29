@@ -4,7 +4,7 @@ import { ImageWithFallback } from './figma/ImageWithFallback';
 
 type ProductCardProps = {
   product: Product;
-  navigateToProduct: (productId: string) => void; // <-- string maintenant
+  navigateToProduct: (productId: string) => void;
 };
 
 export function ProductCard({ product, navigateToProduct }: ProductCardProps) {
@@ -13,24 +13,26 @@ export function ProductCard({ product, navigateToProduct }: ProductCardProps) {
       whileHover={{ y: -12, scale: 1.02 }}
       transition={{ duration: 0.4, type: "spring", stiffness: 200 }}
       className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-shadow cursor-pointer group relative"
-      onClick={() => navigateToProduct(product._id)} // <-- _id venant de Mongo
+      onClick={() => navigateToProduct(product._id)}
     >
       <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
         <motion.div
-          whileHover={{ scale: 1.15 }}
+          className="w-full h-full"
+          whileHover={{ scale: 1.08 }}
           transition={{ duration: 0.6 }}
         >
           <ImageWithFallback
-            src={product.images[0]}
+            src={product.images?.[0] || product.image}
             alt={product.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover block"
           />
         </motion.div>
-        
+
+        {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-2">
           {product.isNew && (
             <motion.span 
-              className="bg-[#FF8C00] text-white px-3 py-1 rounded-full shadow-lg"
+              className="bg-[#FF8C00] text-white px-3 py-1 rounded-full shadow-lg text-xs"
               initial={{ x: -50, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
@@ -41,7 +43,7 @@ export function ProductCard({ product, navigateToProduct }: ProductCardProps) {
           )}
           {product.isBestSeller && (
             <motion.span 
-              className="bg-[#009E60] text-white px-3 py-1 rounded-full shadow-lg"
+              className="bg-[#009E60] text-white px-3 py-1 rounded-full shadow-lg text-xs"
               initial={{ x: -50, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.3 }}
@@ -51,19 +53,6 @@ export function ProductCard({ product, navigateToProduct }: ProductCardProps) {
             </motion.span>
           )}
         </div>
-
-        <motion.div 
-          className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6"
-        >
-          <motion.button 
-            className="bg-white text-[#2C2C2C] px-6 py-3 rounded-full shadow-xl"
-            initial={{ y: 20, opacity: 0 }}
-            whileHover={{ scale: 1.1, y: 0, opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            View Details
-          </motion.button>
-        </motion.div>
       </div>
 
       <motion.div 
@@ -81,8 +70,7 @@ export function ProductCard({ product, navigateToProduct }: ProductCardProps) {
           ${product.price.toFixed(2)}
         </motion.p>
       </motion.div>
-      
-      {/* Subtle shine effect on hover */}
+
       <motion.div
         className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
         initial={{ x: "-100%" }}
