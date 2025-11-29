@@ -1,87 +1,84 @@
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
+import dotenv from "dotenv";
+import { Product } from "./models/Product.js"; // adapte le chemin si besoin
+
+dotenv.config();
 
 const app = express();
-app.use(express.json());
+
+// Middlewares
 app.use(cors());
+app.use(express.json());
 
-// -------------------------------
-//  Connexion MongoDB
-// -------------------------------
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB connecté"))
-  .catch(err => console.error(err));
+// Connexion MongoDB
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ MongoDB connecté"))
+  .catch((err) => console.error("❌ Erreur MongoDB :", err));
 
-// -------------------------------
-//  Modèles MongoDB
-// -------------------------------
-
-// Exemple : modèle utilisateur
-const User = mongoose.model("User", new mongoose.Schema({
-  name: String,
-  email: String
-}));
-
-// Modèle produit
-const Product = mongoose.model("Product", new mongoose.Schema({
-  name: String,
-  price: Number,
-  description: String,
-  category: String,
-  images: [String],
-  sizes: [String],
-  fabric: String,
-  origin: String,
-  isNew: Boolean,
-  isBestSeller: Boolean,
-  culturalInspiration: String
-}));
-
-// -------------------------------
-//  Routes API
-// -------------------------------
-
-// Test route
+// Route test
 app.get("/", (req, res) => {
-  res.send("API Render en ligne");
+  res.send("API AfricanStyle TN OK");
 });
 
-// Ajouter un utilisateur
-app.post("/add-user", async (req, res) => {
-  try {
-    const newUser = new User(req.body);
-    await newUser.save();
-    res.json(newUser);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// GET : récupérer tous les produits
+// ✅ GET tous les produits
 app.get("/api/products", async (req, res) => {
   try {
-    const products = await Product.find();
+    const products = await Product.find().sort({ createdAt: -1 });
     res.json(products);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Erreur GET /api/products :", err);
+    res.status(500).json({ error: "Error fetching products" });
   }
 });
 
-// POST : ajouter un produit
+// ✅ POST créer un produit (avec image + images)
 app.post("/api/products", async (req, res) => {
   try {
-    const product = new Product(req.body);
+    const {
+      name,
+      price,
+      category,
+      description,
+      sizes,
+      image,
+      images,
+      isNew,
+      isBestSeller,
+      fabric,
+      origin,
+      culturalInspiration,
+    } = req.body;
+
+    const product = new Product({
+      name,
+      price,
+      category,
+      description,
+      sizes,
+      // 🔹 on accepte les deux formats envoyés depuis Postman :
+      image: image || undefined,
+      images: images && images.length ? images : [],
+      isNew: !!isNew,
+      isBestSeller: !!isBestSeller,
+      fabric,
+      origin,
+      culturalInspiration,
+    });
+
     await product.save();
+    console.log("✅ Produit créé :", product);
     res.status(201).json(product);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Erreur POST /api/products :", err);
+    res.status(500).json({ error: "Error creating product" });
   }
 });
 
-// -------------------------------
-//  Lancement du serveur
-// -------------------------------
-app.listen(process.env.PORT || 3000, () => {
-  console.log("API running");
+// Lancement serveur
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 API running on port ${PORT}`);
 });
