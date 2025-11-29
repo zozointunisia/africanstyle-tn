@@ -10,7 +10,7 @@ import { CartPage } from './components/CartPage';
 import { products } from './data/products';
 
 export type CartItem = {
-  productId: number;
+  productId: string;
   quantity: number;
   size: string;
   product: Product;
@@ -50,7 +50,7 @@ export default function App() {
     localStorage.setItem('africanstyle-cart', JSON.stringify(cart));
   }, [cart]);
 
-  const addToCart = (productId: number, quantity: number, size: string) => {
+  const addToCart = (productId: string, quantity: number, size: string) => {
     fetch('https://africanstyle-tn-2.onrender.com/api/cart', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -62,7 +62,7 @@ export default function App() {
       });
   };
 
-  const updateCartItemQuantity = (productId: number, size: string, quantity: number) => {
+  const updateCartItemQuantity = (productId: string, size: string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(productId, size);
       return;
@@ -78,7 +78,7 @@ export default function App() {
       });
   };
 
-  const removeFromCart = (productId: number, size: string) => {
+  const removeFromCart = (productId: string, size: string) => {
     fetch(`https://africanstyle-tn-2.onrender.com/api/cart/${productId}`, {
       method: 'DELETE'
     })
@@ -90,7 +90,7 @@ export default function App() {
 
   const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
 
-  const navigateToProduct = (productId: number) => {
+  const navigateToProduct = (productId: string) => {
     setSelectedProductId(productId);
     setCurrentPage('product');
     window.scrollTo(0, 0);
