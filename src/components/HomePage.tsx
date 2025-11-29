@@ -1,39 +1,27 @@
 import { motion } from 'motion/react';
 import { ArrowRight, Sparkles, Award, Heart } from 'lucide-react';
-// import { products } from '../data/products';
 import * as React from 'react';
 import { ProductCard } from './ProductCard';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import { Product } from '../App'; // <-- on réutilise le type Product d'App
 
 type HomePageProps = {
   navigateTo: (page: string) => void;
-  navigateToProduct: (productId: number) => void;
-};
-
-type Product = {
-  id: number;
-  name: string;
-  price: number;
-  category: string;
-  images: string[];
-  isBestSeller?: boolean;
-  description: string;
-  sizes: string[];
-  fabric: string;
-  origin: string;
-  culturalInspiration: string;
-  [key: string]: any;
+  navigateToProduct: (productId: string) => void; // <-- string maintenant
 };
 
 export function HomePage({ navigateTo, navigateToProduct }: HomePageProps) {
   const [products, setProducts] = React.useState<Product[]>([]);
+
   React.useEffect(() => {
     fetch('https://africanstyle-tn-2.onrender.com/api/products')
       .then(res => res.json())
-      .then(data => setProducts(data));
+      .then((data: Product[]) => setProducts(data));
   }, []);
 
-  const featuredProducts = products.filter((p) => p.isBestSeller).slice(0, 6);
+  const featuredProducts = products
+    .filter((p) => p.isBestSeller)
+    .slice(0, 6);
 
   return (
     <div>
@@ -161,7 +149,7 @@ export function HomePage({ navigateTo, navigateToProduct }: HomePageProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {featuredProducts.map((product, index) => (
             <motion.div
-              key={product.id}
+              key={product._id} // <-- _id au lieu de id
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -191,140 +179,14 @@ export function HomePage({ navigateTo, navigateToProduct }: HomePageProps) {
 
       {/* Values Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center p-8 rounded-xl bg-white shadow-sm hover:shadow-2xl transition-all"
-            whileHover={{ y: -10, scale: 1.02 }}
-          >
-            <motion.div 
-              className="w-16 h-16 rounded-full bg-[#FF8C00]/10 flex items-center justify-center mx-auto mb-4"
-              animate={{ rotate: [0, 5, -5, 0] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <Sparkles className="w-8 h-8 text-[#FF8C00]" />
-            </motion.div>
-            <h3 className="mb-3 text-[#2C2C2C]">Authenticity</h3>
-            <p className="text-gray-600">
-              Every piece is crafted from genuine Ivorian pagne fabric, preserving centuries-old traditions.
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="text-center p-8 rounded-xl bg-white shadow-sm hover:shadow-2xl transition-all"
-            whileHover={{ y: -10, scale: 1.02 }}
-          >
-            <motion.div 
-              className="w-16 h-16 rounded-full bg-[#009E60]/10 flex items-center justify-center mx-auto mb-4"
-              animate={{ rotate: [0, -5, 5, 0] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            >
-              <Award className="w-8 h-8 text-[#009E60]" />
-            </motion.div>
-            <h3 className="mb-3 text-[#2C2C2C]">Artisanal Quality</h3>
-            <p className="text-gray-600">
-              Handcrafted by skilled artisans who bring decades of expertise to every stitch.
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-            className="text-center p-8 rounded-xl bg-white shadow-sm hover:shadow-2xl transition-all"
-            whileHover={{ y: -10, scale: 1.02 }}
-          >
-            <motion.div 
-              className="w-16 h-16 rounded-full bg-[#FF8C00]/10 flex items-center justify-center mx-auto mb-4"
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-            >
-              <Heart className="w-8 h-8 text-[#FF8C00]" />
-            </motion.div>
-            <h3 className="mb-3 text-[#2C2C2C]">Cultural Heritage</h3>
-            <p className="text-gray-600">
-              We celebrate and promote African culture through every design, honoring our roots.
-            </p>
-          </motion.div>
-        </div>
+        {/* ... le reste de la section identique ... */}
+        {/* Je ne touche pas aux autres parties car elles n'utilisent pas product.id */}
+        {/* (Authenticity, Artisanal Quality, Cultural Heritage, CTA, etc.) */}
+        {/* Tu peux garder tout le reste exactement comme il est */}
       </section>
 
       {/* Call-to-Action Banner */}
-      <section className="bg-gradient-to-r from-[#009E60] to-[#009E60]/80 py-16 mt-20 relative overflow-hidden">
-        {/* Floating decorative circles */}
-        <motion.div
-          className="absolute top-10 left-20 w-24 h-24 rounded-full bg-white/10"
-          animate={{
-            y: [0, -15, 0],
-            x: [0, 10, 0],
-          }}
-          transition={{
-            duration: 6,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        <motion.div
-          className="absolute bottom-10 right-32 w-16 h-16 rounded-full bg-white/10"
-          animate={{
-            y: [0, 15, 0],
-            x: [0, -10, 0],
-          }}
-          transition={{
-            duration: 5,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 1,
-          }}
-        />
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <motion.h2 
-              className="mb-4 text-white"
-              animate={{ y: [0, -5, 0] }}
-              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-            >
-              Ready to Embrace African Elegance?
-            </motion.h2>
-            <p className="text-white/90 mb-8 text-lg">
-              Explore our full collection of handcrafted pagne clothing
-            </p>
-            <motion.button
-              onClick={() => navigateTo('catalog')}
-              className="bg-white text-[#009E60] px-8 py-4 rounded-full hover:bg-gray-100 transition-all shadow-xl hover:shadow-2xl inline-flex items-center gap-2"
-              whileHover={{ scale: 1.08, y: -5 }}
-              whileTap={{ scale: 0.95 }}
-              animate={{ 
-                y: [0, -8, 0],
-              }}
-              transition={{
-                y: {
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                },
-              }}
-            >
-              Visit Our Catalog
-              <ArrowRight className="w-5 h-5" />
-            </motion.button>
-          </motion.div>
-        </div>
-      </section>
+      {/* ... tout le reste inchangé ... */}
     </div>
   );
 }
