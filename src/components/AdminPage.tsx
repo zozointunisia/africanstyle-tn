@@ -26,14 +26,14 @@ export function AdminPage() {
 
   // Fetch products
   React.useEffect(() => {
-    fetch('https://africanstyle-tn.onrender.com/api/products')
+    fetch('https://africanstyle-tn-2.onrender.com/api/products')
       .then(res => res.json())
       .then(data => setProducts(data));
   }, []);
 
   // Fetch orders
   React.useEffect(() => {
-    fetch('https://africanstyle-tn.onrender.com/api/orders')
+    fetch('https://africanstyle-tn-2.onrender.com/api/orders')
       .then(res => res.json())
       .then(data => setOrders(data));
   }, []);
@@ -60,7 +60,7 @@ export function AdminPage() {
       alert('Total must be a positive number.');
       return;
     }
-    fetch('https://africanstyle-tn.onrender.com/api/orders', {
+    fetch('https://africanstyle-tn-2.onrender.com/api/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -79,7 +79,7 @@ export function AdminPage() {
   // Add product
   const handleAddProduct = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    fetch('https://africanstyle-tn.onrender.com/api/products', {
+    fetch('https://africanstyle-tn-2.onrender.com/api/products', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: newProduct.name, price: parseFloat(newProduct.price) })
@@ -100,7 +100,7 @@ export function AdminPage() {
   const handleUpdateProduct = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!editingProduct) return;
-    fetch(`https://africanstyle-tn.onrender.com/api/products/${editingProduct.id}`, {
+    fetch(`https://africanstyle-tn-2.onrender.com/api/products/${editingProduct.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: editingProduct.name, price: parseFloat(String(editingProduct.price)) })
@@ -114,7 +114,7 @@ export function AdminPage() {
 
   // Delete product
   const handleDeleteProduct = (id: string) => {
-    fetch(`https://africanstyle-tn.onrender.com/api/products/${id}`, { method: 'DELETE' })
+    fetch(`https://africanstyle-tn-2.onrender.com/api/products/${id}`, { method: 'DELETE' })
       .then(() => {
         setProducts(products.filter(p => p.id !== id));
       });
@@ -225,7 +225,7 @@ export function AdminPage() {
                   <select
                     value={order.status}
                     onChange={e => {
-                      fetch(`https://africanstyle-tn.onrender.com/api/orders/${order.id}`, {
+                      fetch(`https://africanstyle-tn-2.onrender.com/api/orders/${order.id}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ status: e.target.value })
@@ -245,7 +245,7 @@ export function AdminPage() {
                   </select>
                   <button
                     onClick={() => {
-                      fetch(`https://africanstyle-tn.onrender.com/api/orders/${order.id}`, { method: 'DELETE' })
+                      fetch(`https://africanstyle-tn-2.onrender.com/api/orders/${order.id}`, { method: 'DELETE' })
                         .then(() => setOrders(orders.filter(o => o.id !== order.id)));
                     }}
                     className="bg-red-600 text-white px-2 py-1 rounded"
