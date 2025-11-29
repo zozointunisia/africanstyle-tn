@@ -51,7 +51,7 @@ export default function App() {
   }, [cart]);
 
   const addToCart = (productId: number, quantity: number, size: string) => {
-    fetch('http://localhost:4000/api/cart', {
+    fetch('https://africanstyle-tn.onrender.com/api/cart', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ productId, quantity })
@@ -67,7 +67,7 @@ export default function App() {
       removeFromCart(productId, size);
       return;
     }
-    fetch('http://localhost:4000/api/cart', {
+    fetch('https://africanstyle-tn.onrender.com/api/cart', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ productId, quantity })
@@ -79,7 +79,7 @@ export default function App() {
   };
 
   const removeFromCart = (productId: number, size: string) => {
-    fetch(`http://localhost:4000/api/cart/${productId}`, {
+    fetch(`https://africanstyle-tn.onrender.com/api/cart/${productId}`, {
       method: 'DELETE'
     })
       .then(res => res.json())
