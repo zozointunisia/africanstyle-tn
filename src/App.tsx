@@ -92,9 +92,10 @@ export default function App() {
   const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
 
   const navigateToProduct = (productId: string) => {
-    setSelectedProductId(productId);
-    setCurrentPage('product');
-    window.scrollTo(0, 0);
+  console.log('✅ navigateToProduct called with =', productId);
+  setSelectedProductId(productId);
+  setCurrentPage('product');
+  window.scrollTo(0, 0);
   };
 
   const navigateTo = (page: string) => {
